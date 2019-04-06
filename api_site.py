@@ -4,7 +4,7 @@ from flask import Flask
 from flask import request, render_template, redirect, url_for
 from flask import session as login_session
 
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker
 
 from database_setup import Base, Customer
@@ -90,9 +90,19 @@ def viewCustomer(item_id):
         raise TypeError("Id must be integer")
 
     customer = session.query(Customer).filter_by(id=item_id).one()
+    return render_template('view.html', customer=customer, text=None)
 
 
-    return render_template('view.html', customer=customer)
+# Views youngest customer
+@app.route('/customer/youngest', methods=['GET'])
+def viewYoungest():
+    statement = 'SELECT name, dob FROM customer WHERE dob = (SELECT MAX(dob) FROM customer)'
+    sql = text(statement)
+    res = engine.execute(sql)
+    for row in res:
+        customer = row
+
+    return render_template('view.html', customer=customer, text=statement)
 
 
 # Home
