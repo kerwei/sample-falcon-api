@@ -17,7 +17,7 @@ class Customers(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     dob = Column(Date, nullable=False)
-    dt_added = Column(DateTime,
+    updated_at = Column(DateTime,
         nullable=False,
         default=datetime.datetime.now())
 
