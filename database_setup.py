@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 
-class Customers(Base):
+class Customer(Base):
     '''
     Schema of customers
     '''
