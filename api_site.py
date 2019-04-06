@@ -98,7 +98,8 @@ def viewCustomer(item_id):
 # Home
 @app.route('/', methods=['GET'])
 def homePage():
-    return render_template('index.html')
+    customers = session.query(Customer).all()
+    return render_template('index.html',customers=customers)
 
 
 if __name__ == '__main__':

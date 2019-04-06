@@ -1,1 +1,24 @@
-<h1>Hello World</h1>
+<h1>Customer API Reference</h1>
+
+<h2>End Points</h2>
+<table>
+  <tr><th>Action</th><th>End point</th></tr>
+  <tr><td>View</td><td>/customer/get/<i>customer_id</i></td></tr>
+  <tr><td>Create</td><td>/customer/add/<i>name|DD-MM-YYYY</i></td></tr>
+  <tr><td>Update</td><td>/customer/edit/<i>customer_id</i>/<i>name|DD-MM-YYYY</i></td></tr>
+  <tr><td>Delete</td><td>/customer/delete/<i>customer_id</i></td></tr>
+</table>
+
+<br>
+
+<h2>Data</h2>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>DOB</th>
+  </tr>
+  {% for each in customers %}
+    <tr><td>{{ each.id }}</td><td>{{ each.name }}</td><td>{{ each.dob }}</td></tr>
+  {% endfor %}
+</table>
+</div>
