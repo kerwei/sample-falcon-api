@@ -1,16 +1,20 @@
-from functools import wraps
 from datetime import datetime
 
 from flask import Flask
-from flask import request, render_template, redirect, url_for, flash
-from flask import abort, jsonify, flash, escape
+from flask import request, render_template, redirect, url_for
 from flask import session as login_session
 
-import helpers
+from sqlalchemy import create_engine, desc
+from sqlalchemy.orm import sessionmaker
+
 from database_setup import Base, Customer
-from dbfunctions import session
 
 
+# DB
+engine = create_engine('postgresql+psycopg2://giga:agig@localhost/giga')
+Base.metadata.bind = engine
+DBSession = sessionmaker(bind=engine)
+session = DBSession()
 # Starts the application and register the blueprints
 app = Flask(__name__)
 
@@ -26,7 +30,7 @@ def parseUrlEntry(entry_string):
 
 # Adds a customer
 @app.route('/customer/add/<string:new_entry>', methods=['GET'])
-def newItem(new_entry):
+def createCustomer(new_entry):
     data = parseUrlEntry(new_entry)
     # Creates the record and saves it to the database
     if data:
@@ -37,9 +41,9 @@ def newItem(new_entry):
     return redirect(url_for('homePage'))
 
 
-# Edits the catalog item record
+# Edits a customer
 @app.route('/customer/edit/<string:item_id>/<string:new_entry>', methods=['GET'])
-def editItem(item_id, new_entry):
+def updateCustomer(item_id, new_entry):
     if item_id.isdigit():
         item_id = int(item_id)
     else:
@@ -61,7 +65,7 @@ def editItem(item_id, new_entry):
 
 # Deletes a customer
 @app.route('/customer/delete/<string:item_id>', methods=['GET'])
-def deleteItem(item_id):
+def deleteCustomer(item_id):
     if item_id.isdigit():
         item_id = int(item_id)
     else:
@@ -75,6 +79,20 @@ def deleteItem(item_id):
         pass
 
     return redirect(url_for('homePage'))
+
+
+# Views a customer
+@app.route('/customer/get/<string:item_id>', methods=['GET'])
+def viewCustomer(item_id):
+    if item_id.isdigit():
+        item_id = int(item_id)
+    else:
+        raise TypeError("Id must be integer")
+
+    customer = session.query(Customer).filter_by(id=item_id).one()
+
+
+    return render_template('view.html', customer=customer)
 
 
 # Home
