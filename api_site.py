@@ -24,7 +24,7 @@ def parseUrlEntry(entry_string):
         return []
 
 
-# Adds a new item to the catalog
+# Adds a customer
 @app.route('/customer/add/<string:new_entry>', methods=['GET'])
 def newItem(new_entry):
     data = parseUrlEntry(new_entry)
@@ -38,43 +38,28 @@ def newItem(new_entry):
 
 
 # Edits the catalog item record
-@app.route('/customer/edit/<int:item_id>/<string:new_entry>', methods=['GET'])
-def editItem(item_id):
-    item = session.query(CatalogItem).filter_by(id=item_id).one()
+@app.route('/customer/edit/<string:item_id>/<string:new_entry>', methods=['GET'])
+def editItem(item_id, new_entry):
+    if item_id.isdigit():
+        item_id = int(item_id)
+    else:
+        raise TypeError("Id must be integer")
+    
+    data = parseUrlEntry(new_entry)
+    try:
+        item = session.query(Customer).filter_by(id=item_id).one()
+        item.name = data[0]
+        item.dob = data[1]
 
-    # Redirects back to the main landing page if the record is not found
-    if not item:
-        flash("Invalid item. \
-            Please check that you have selected a valid item.")
-        return redirect(url_for('public_page.itemList'))
+        session.add(item)
+        session.commit()
+    except:
+        pass
 
-    if request.method == 'GET':
-        return render_template('edititem.html', item=item)
-
-    if request.method == 'POST':
-        user_id = login_session['user_id']
-
-        # Checks that the item belongs to the rightful user
-        if user_id == item.user_id:
-            item.name = request.form['name']
-            item.price = request.form['price']
-            item.category = request.form['category']
-            item.description = request.form['description']
-            session.add(item)
-            session.commit()
-            flash("Item saved successfully!")
-        else:
-            flash("You are not authorized to edit this item!")
-            return redirect(url_for('public_page.viewCatalogItem',
-                category=item.category,
-                item_id=item.id))
-
-        return redirect(url_for('public_page.viewCatalogItem',
-            category=item.category,
-            item_id=item.id))
+    return redirect(url_for('homePage'))
 
 
-# Deletes a catalog item
+# Deletes a customer
 @app.route('/customer/delete/<string:item_id>', methods=['GET'])
 def deleteItem(item_id):
     if item_id.isdigit():
@@ -82,21 +67,17 @@ def deleteItem(item_id):
     else:
         raise TypeError("Id must be integer")
 
-    item = session.query(Customer).filter_by(id=item_id).one()
-
-    # Redirects back to the main landing page if the record is not found
-    if not item:
-        flash("Invalid id. \
-            Please check that you have entered a valid id.")
-        return redirect(url_for('homePage'))
-
-    session.delete(item)
-    session.commit()
-    flash("Item deleted!")
+    try:
+        item = session.query(Customer).filter_by(id=item_id).one()
+        session.delete(item)
+        session.commit()
+    except:
+        pass
 
     return redirect(url_for('homePage'))
 
-# Retrieve a record
+
+# Home
 @app.route('/', methods=['GET'])
 def homePage():
     return render_template('index.html')
