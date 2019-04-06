@@ -77,33 +77,24 @@ def editItem(item_id):
 # Deletes a catalog item
 @app.route('/customer/delete/<string:item_id>', methods=['GET'])
 def deleteItem(item_id):
+    if item_id.isdigit():
+        item_id = int(item_id)
+    else:
+        raise TypeError("Id must be integer")
 
     item = session.query(Customer).filter_by(id=item_id).one()
 
     # Redirects back to the main landing page if the record is not found
     if not item:
-        flash("Invalid item. \
-            Please check that you have selected a valid item.")
-        return redirect(url_for('public_page.itemList'))
+        flash("Invalid id. \
+            Please check that you have entered a valid id.")
+        return redirect(url_for('homePage'))
 
-    if request.method == 'GET':
-        return render_template('deleteitem.html', item=item)
+    session.delete(item)
+    session.commit()
+    flash("Item deleted!")
 
-    if request.method == 'POST':
-        user_id = login_session['user_id']
-
-        # Checks that the user is the rightful owner of the item
-        if user_id == item.user.id:
-            session.delete(item)
-            session.commit()
-            flash("Item deleted!")
-        else:
-            flash("You are not authorized to delete this item!")
-            return redirect(url_for('public_page.viewCatalogItem',
-                category=item.category,
-                item_id=item.id))
-
-        return redirect(url_for('public_page.itemList'))
+    return redirect(url_for('homePage'))
 
 # Retrieve a record
 @app.route('/', methods=['GET'])
