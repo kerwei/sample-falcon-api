@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Latest Items</h1>
+{% for each in items %}
+<div>
+  <ul>
+  <a href="{{url_for('public_page.viewCatalogItem', category = each.category, item_id = each.id)}}">
+    <p>{{ '%s (%s)' % (each.name, each.category) }}</p>
+  </a>
+  </ul>
+</div>
+{% endfor %}
+
+<h1>View Categories</h1>
+<!-- Display for category -->
+<div>
+  {% for cat in categories %}
+  <ul>
+    <a href="{{url_for('public_page.viewCategory', category = cat)}}"><p>{{cat}}</p></a>
+  </ul>
+  {% endfor %}
+</div>
+
+
+{% endblock %}
